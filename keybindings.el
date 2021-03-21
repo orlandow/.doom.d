@@ -8,6 +8,25 @@
       :desc "Toggle frame maximized"
       :nv "tm" #'toggle-frame-maximized)
 
+(map! :map emacs-lisp-mode-map
+      :localleader
+      :desc "Eval defun at point"
+      :nv "ef" #'eros-eval-defun)
+
+(map! :leader
+      :desc "Narrow or widen dwim"
+      :nv "zz" #'my/narrow-or-widen-dwim)
+
+(map! :leader
+      :desc "Search for symbol at point in current project"
+      :nv "*" #'my/search-project-for-symbol-at-point)
+
+(map! :map global-map
+      :leader
+      :desc "Add buffer to persp"
+      :nv "ba" #'my/add-current-buffer-to-persp)
+
+
 ;; ---------------------------------------
 ;; Clojure
 ;; ---------------------------------------
