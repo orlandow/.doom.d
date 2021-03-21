@@ -107,47 +107,6 @@
         css-indent-offset 2))
 
 ;; ---------------------------------------------------------
-;; ------------      APL                 -------------------
-;; ---------------------------------------------------------
-
-(after! gnu-apl-mode
-  (setq gnu-apl-mode-map-prefix "M-"
-        gnu-apl-show-tips-on-start nil
-        gnu-apl-show-apl-welcome nil)
-
-  (defun my/gnu-apl-interactive-send-line ()
-    (interactive)
-    (let* ((line (buffer-substring (line-beginning-position) (line-end-position)))
-           (b (get-buffer-create "*gnu-apl*"))
-           (proc (get-buffer-process b))
-           (m (process-mark proc)))
-      (with-current-buffer b
-        (goto-char (marker-position m))
-        (insert line)
-        (insert "\n")
-        (set-marker m (point)))
-      (gnu-apl-interactive-send-string line)))
-
-  (map!
-   :map gnu-apl-mode-map
-   :localleader
-   :desc "APL interactive"
-   :nv "c" #'gnu-apl)
-
-  (map!
-   :map gnu-apl-mode-map
-   :localleader
-   :desc "APL send line to interactive"
-   :nv "ef" #'my/gnu-apl-interactive-send-line)
-
-  (map!
-   :map gnu-apl-mode-map
-   :localleader
-   :desc "APL show keyboard"
-   :nv "k" #'gnu-apl-show-keyboard)
-  )
-
-;; ---------------------------------------------------------
 ;; ------------      MISC                -------------------
 ;; ---------------------------------------------------------
 
@@ -167,11 +126,6 @@ narrowed."
         ((derived-mode-p 'org-mode) (org-narrow-to-subtree))
         (t (narrow-to-defun))))
 
-(map!
- :leader
- :desc "Narrow or widen dwim"
- :nv "zz" #'my/narrow-or-widen-dwim)
-
 ;; ---------------------------------------------------------
 ;; SPC * without regex quote
 
@@ -180,7 +134,10 @@ narrowed."
   (+default/search-project-for-symbol-at-point
    (or (doom-thing-at-point-or-region) "")))
 
-(map!
- :leader
- :desc "Search for symbol at point in current project"
- :nv "*" #'my/search-project-for-symbol-at-point)
+;; ---------------------------------------------------------
+;; Add current buffer to persp
+
+(defun my/add-current-buffer-to-persp ()
+  (interactive)
+  (persp-add-buffer (current-buffer))
+  (message "added buffer to persp"))

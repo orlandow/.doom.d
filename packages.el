@@ -52,4 +52,3 @@
 (package! imenu-anywhere)
 (package! evil-cleverparens)
 
-(package! gnu-apl-mode)
