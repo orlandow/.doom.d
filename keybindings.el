@@ -26,6 +26,10 @@
       :desc "Add buffer to persp"
       :nv "ba" #'my/add-current-buffer-to-persp)
 
+(map! :map global-map
+      :desc "cycle-spacing"
+      "M-SPC" 'cycle-spacing)
+
 
 ;; ---------------------------------------
 ;; Clojure
