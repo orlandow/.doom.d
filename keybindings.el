@@ -30,6 +30,13 @@
       :desc "cycle-spacing"
       "M-SPC" 'cycle-spacing)
 
+(map! :n "j" #'evil-next-visual-line
+      :n "k" #'evil-previous-visual-line)
+
+(map! :map org-mode-map
+      :localleader
+      :desc "Org ctrl-c-ctrl-c"
+      :n "," #'org-ctrl-c-ctrl-c)
 
 ;; ---------------------------------------
 ;; Clojure

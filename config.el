@@ -38,12 +38,23 @@
 (setq evil-split-window-below t
       evil-vsplit-window-right t)
 
+;; Disable invasive lsp-mode features
+(setq lsp-ui-sideline-enable nil   ; not anymore useful than flycheck
+      lsp-ui-doc-enable nil        ; slow and redundant with K
+      lsp-enable-symbol-highlighting nil
+      ;; If an LSP server isn't present when I start a prog-mode buffer, you
+      ;; don't need to tell me. I know. On some systems I don't care to have a
+      ;; whole development environment for some ecosystems.
+      +lsp-prompt-to-install-server 'quiet)
+
+;; Configure Avy to work on all visible windows
+(setq avy-all-windows t)
+
 (setq fancy-splash-image (concat doom-private-dir "splash.png"))
 ;;(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (delete (assoc "Open org-agenda" +doom-dashboard-menu-sections) +doom-dashboard-menu-sections)
 
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
-
 
 ;; keybindings in another file
 (load! "keybindings.el")
@@ -69,11 +80,9 @@
                (add-to-list 'imenu-generic-expression
                             '("re-frame" "(reg-\\(event-fx\\|event-db\\|sub\\)[ \\|\n]*\\(:[^ \\|\n]*\\)" 2) t)))
 
-;; FIXME: not working
-(add-hook! clojure-mode
+(after! cider
+  (setq cljr-suppress-middleware-warnings t)
   (set-popup-rule! "^\\*cider-repl" :side 'right :size 0.35 :quit 'other))
-
-(setq cljr-suppress-middleware-warnings t)
 
 ;; clojure and cljs green icons (also including edn)
 (after! all-the-icons
@@ -105,6 +114,61 @@
 (after! css-mode
   (setq web-mode-css-indent-offset 2
         css-indent-offset 2))
+
+;; ---------------------------------------------------------
+;; ------------      DAP Mode            -------------------
+;; ---------------------------------------------------------
+
+;; (after! dap-mode
+;;   (setq dap-auto-configure-features '(breakpoints sessions locals expressions))
+;;   (dap-ui-controls-mode -1))
+
+;; ---------------------------------------------------------
+;; ------------      restclient          -------------------
+;; ---------------------------------------------------------
+(after! restclient-mode
+  (set-popup-rule! "^\\*HTTP Response*" :side 'right :size 0.35 :quit 'current))
+
+;; ---------------------------------------------------------
+;; ------------      Emacs lisp          -------------------
+;; ---------------------------------------------------------
+
+(after! flycheck
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+
+;; ---------------------------------------------------------
+;; ------------      Org mode            -------------------
+;; ---------------------------------------------------------
+
+(defun my/org-inline-css-hook (exporter)
+  "Insert custom inline css to automatically set the
+background of code to whatever theme I'm using's background"
+  (when (eq exporter 'html)
+    (let* ((my-pre-bg (face-background 'default))
+           (my-pre-fg (face-foreground 'default)))
+      (setq
+       org-html-head-extra
+       (concat
+        org-html-head-extra
+        (format "<style type=\"text/css\">\n pre.src {background-color: %s; color: %s;}</style>\n"
+                my-pre-bg my-pre-fg))))))
+
+(setq org-directory "~/projects/org/"
+      org-archive-location (concat org-directory ".archive/%s::")
+      org-roam-directory (concat org-directory "roam/")
+      org-roam-db-location (concat org-directory ".org-roam.db"))
+
+(after! org-mode
+  (add-hook 'org-export-before-processing-hook 'my/org-inline-css-hook)
+  (add-to-list 'org-html-text-markup-alist
+               '(verbatim . "<code class=\"verbatim\">%s</code>"))
+
+  ;; Messes up with html export theme
+  (setq org-html-table-default-attributes '()
+        org-html-postamble nil))
+
+(after! org-roam-mode
+  (set-company-backend! 'org-roam-mode 'company-capf))
 
 ;; ---------------------------------------------------------
 ;; ------------      MISC                -------------------
@@ -141,3 +205,26 @@ narrowed."
   (interactive)
   (persp-add-buffer (current-buffer))
   (message "added buffer to persp"))
+
+;; ---------------------------------------------------------
+;; Doom features
+
+(defun doom/ediff-init-and-example ()
+  "ediff the current `init.el' with the example in doom-emacs-dir"
+  (interactive)
+  (ediff-files (concat doom-private-dir "init.el")
+               (concat doom-emacs-dir "init.example.el")))
+
+(define-key! help-map
+  "di"   #'doom/ediff-init-and-example)
+
+;; ---------------------------------------------------------
+;; Theme
+
+(custom-set-faces! '(ivy-minibuffer-match-face-1 :foreground "#bbc2cf"))
+
+;; ---------------------------------------------------------
+;; Emacs Everywhere
+
+;; (add-to-list 'emacs-everywhere-markdown-apps
+;;              "Slack")

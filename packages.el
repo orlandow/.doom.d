@@ -52,3 +52,6 @@
 (package! imenu-anywhere)
 (package! evil-cleverparens)
 
+;; (package! verb)
+
+(package! ob-http)
